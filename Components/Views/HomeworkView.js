@@ -1,0 +1,145 @@
+import React from 'react';
+import { SectionList, Text, StyleSheet, View, AsyncStorage, Button, Image } from 'react-native';
+import { createStackNavigator } from 'react-navigation';
+
+import EditHomework from './EditHomework.js'
+import HomeworkListItem from "../HomeworkListItem.js"
+import Loading from '../Loading.js'
+
+class HomeworkViewScreen extends React.Component {
+	static navigationOptions = ({ navigation }) => {
+		return {
+			headerTitle: (<Image
+				source={require('../../assets/mhs.png')}
+				style={{ width: 30, height: 30, marginLeft: 5, marginRight: 5 }}
+			/>),
+			headerRight: (
+				<Button
+					onPress={() => navigation.navigate('EditHomework')}
+					title="Add"
+				/>
+			),
+		};
+	};
+
+	load() {
+		this.setState({
+			refreshing: true
+		})
+		AsyncStorage.getItem('csrfToken').then((token) => {
+			fetch('https://api-v2.myhomework.space/homework/getHWViewSorted?showToday=true&csrfToken=' + token, {
+				method: 'GET',
+				credentials: 'include'
+			}).then((response) => {
+				return response.text();
+			}).then((text) => {
+				this.setState({
+					loading: false,
+					refreshing: false,
+					homework: JSON.parse(text)
+				});
+			}).catch((error) => {
+				console.error(error)
+			});
+		}).catch((error) => {
+			console.error(error);
+		})
+	}
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			loading: true
+		}
+	}
+
+	componentDidMount() {
+		this.load();
+	}
+
+	render() {
+		if (!this.state.loading) {
+			let overdue = [];
+			let today = [];
+			let tomorrow = [];
+			let soon = [];
+			let longterm = [];
+			let sections = [];
+			for (const item in this.state.homework.overdue) {
+				const homeworkItem = this.state.homework.overdue[item];
+				overdue.push(homeworkItem);
+			}
+			for (const item in this.state.homework.today) {
+				const homeworkItem = this.state.homework.today[item];
+				today.push(homeworkItem);
+			}
+			for (const item in this.state.homework.tomorrow) {
+				const homeworkItem = this.state.homework.tomorrow[item];
+				tomorrow.push(homeworkItem);
+			}
+			for (const item in this.state.homework.soon) {
+				const homeworkItem = this.state.homework.soon[item];
+				soon.push(homeworkItem);
+			}
+			for (const item in this.state.homework.longterm) {
+				const homeworkItem = this.state.homework.longterm[item];
+				soon.push(homeworkItem);
+			}
+			if (overdue.length > 0) sections.push({ title: "Overdue", data: overdue })
+			if (today.length > 0) sections.push({ title: "Due Today", data: today })
+			if (tomorrow.length > 0) sections.push({ title: "Due Tomorrow", data: tomorrow })
+			if (soon.length > 0) sections.push({ title: "Due Soon", data: soon })
+			if (longterm.length > 0) sections.push({ title: "Long Term", data: longterm })
+			return (
+				<View style={styles.container}>
+					<SectionList
+						sections={sections}
+						renderItem={
+							({ item }) => <HomeworkListItem homeworkItem={item} onPress={function() {
+								this.props.navigation.navigate('EditHomework', {homework: item })
+							}.bind(this)} />}
+						renderSectionHeader={({ section }) => (<Text style={styles.sectionHeader}>{section.title}</Text>)}
+						keyExtractor={(item, index) => index}
+						onRefresh={() => {
+							this.load();
+						}}
+						refreshing={this.state.refreshing}
+						stickySectionHeadersEnabled={true}
+					/>
+				</View>
+			);
+		} else { return <Loading /> }
+	}
+}
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
+	sectionHeader: {
+		paddingTop: 2,
+		paddingLeft: 10,
+		paddingRight: 10,
+		paddingBottom: 2,
+		fontSize: 14,
+		fontWeight: 'bold',
+		backgroundColor: 'rgba(247,247,247,1.0)',
+	},
+})
+
+const HomeworkViewStack = createStackNavigator(
+	{
+		HomeworkView: HomeworkViewScreen,
+		EditHomework: EditHomework
+	},
+	{
+		initialRouteName: 'HomeworkView',
+	}
+);
+
+export default class HomeworkView extends React.Component {
+	render() {
+		return <HomeworkViewStack />;
+	}
+}
+

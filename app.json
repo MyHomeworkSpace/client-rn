@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "MyHomeworkSpace",
+    "description": "This project is really great.",
+    "slug": "MyHomeworkSpace-client-rn",
+    "privacy": "public",
+    "sdkVersion": "30.0.0",
+    "platforms": ["ios", "android"],
+    "version": "0.0.1-alpha.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "space.myhomework.clientrn"
+    },
+    "android": {
+      "package": "space.myhomework.clientrn"
+    }
+  }
+}
