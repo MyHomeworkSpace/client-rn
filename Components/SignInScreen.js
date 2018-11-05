@@ -1,12 +1,35 @@
 import React from 'react';
 import { Text, View, StyleSheet, TextInput, Button, AsyncStorage } from 'react-native';
 
+import Loading from './Loading'
+
 class SignInScreen extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			loading: false,
+			pageLoading: true,
 		}
+		this.load();
+	}
+
+	load() {
+		fetch('https://api-v2.myhomework.space/auth/csrf', {
+			method: 'GET',
+			credentials: 'include',
+		}).then((response) => {
+			return response.text();
+		}).then((text) => {
+			this.setState({
+				csrfToken: JSON.parse(text).token,
+				pageLoading: false,
+			});
+			return JSON.parse(text).token;
+		}).then((token) => {
+			return AsyncStorage.setItem('csrfToken', token);
+		}).catch((error) => {
+			alert("Could not connect to MyHomeworkSpace server.")
+		});
 	}
 
 	encoodeFormBody(username, password) {
@@ -26,15 +49,13 @@ class SignInScreen extends React.Component {
 
 	handlePress() {
 		this.setState({ loading: true })
-		AsyncStorage.getItem('csrfToken').then((token) => {
-			return fetch('https://api-v2.myhomework.space/auth/login?csrfToken=' + token, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-				},
-				body: this.encoodeFormBody(this.state.username, this.state.password)
-			})
+		fetch('https://api-v2.myhomework.space/auth/login?csrfToken=' + this.state.token, {
+			method: 'POST',
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+			},
+			body: this.encoodeFormBody(this.state.username, this.state.password)
 		}).then((response) => {
 			return response.text();
 		}).then((text) => {
@@ -45,14 +66,15 @@ class SignInScreen extends React.Component {
 					signInError: data.error
 				})
 			} else {
-				this.props.onLogin();
+				this.props.navigation.navigate('App');
 			}
 		}).catch((error) => {
-			console.error(`Error during sign-in request\n${error}`)
+			console.error(`Error during sign-in request\n${error}`);
 		})
 	}
 
 	render() {
+		if(this.state.pageLoading) return <Loading />
 		return (
 			<View style={styles.PageSpacing} >
 				<Text style={styles.SignInText}>Sign In</Text>

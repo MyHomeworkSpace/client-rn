@@ -1,50 +1,73 @@
 import React from 'react';
-import {AsyncStorage} from 'react-native';
+import { AsyncStorage } from 'react-native';
+import { createBottomTabNavigator, createStackNavigator, createSwitchNavigator } from 'react-navigation';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import HomeworkView from './Components/Views/HomeworkView.js'
+import SettingsView from "./Components/Views/SettingsView.js"
+import CalendarView from "./Components/Views/CalendarView.js"
 import Loading from "./Components/Loading.js"
 import SignInScreen from './Components/SignInScreen.js'
-import Navigation from './Components/Navigation.js'
 
-export default class App extends React.Component {
+class LoadApp extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = ({
-			isLoggedIn: false,
-			loaded: false
-		});
-		fetch('https://api-v2.myhomework.space/auth/csrf', {
-			method: 'GET',
-			credentials: 'include',
-		}).then((response) => {
-			return response.text();
-		}).then((text) => {
-			this.setState({
-				csrfToken: JSON.parse(text).token,
-				loaded: true,
-			});
-			return JSON.parse(text).token;
-		}).then((token) => {
-			return AsyncStorage.setItem('csrfToken', token);
-		}).catch((error) => {
-			console.error(error)
-		});
+		this.load();
 	}
 
-	handleLogin() {
-		fetch('http')
-		this.setState({
-			isLoggedIn: true
-		})
+	load = async () => {
+		const token = await AsyncStorage.getItem("csrfToken");
+		this.props.navigation.navigate(token ? "App" : "Auth");
 	}
 
-	render() {
-		if (this.state.loaded && this.state.isLoggedIn) {
-			return <Navigation csrfToken={this.state.csrfToken} />
-		} else if(this.state.loaded && !this.state.isLoggedIn) {
-			return <SignInScreen onLogin={this.handleLogin.bind(this)} csrfToken={this.state.csrfToken} />
-		}
-		return (
-			<Loading />
-		);
-	}
+	render() { return <Loading /> }
 }
+
+const AppTab = createBottomTabNavigator(
+	{
+		Homework: {
+			screen: HomeworkView,
+		},
+		Calendar: {
+			screen: CalendarView,
+		},
+		Settings: {
+			screen: SettingsView
+		}
+	},
+	{
+		navigationOptions: ({ navigation }) => ({
+			tabBarIcon: ({ focused, tintColor }) => {
+				const { routeName } = navigation.state;
+				let iconName;
+				if (routeName === 'Homework') {
+					iconName = `md-home`;
+				} else if (routeName === 'Calendar') {
+					iconName = `md-calendar`;
+				} else if (routeName === 'Settings') {
+					iconName = `md-options`;
+				}
+
+				// You can return any component that you like here! We usually use an
+				// icon component from react-native-vector-icons
+				return <Ionicons name={iconName} size={25} color={tintColor} />;
+			},
+		}),
+		tabBarPosition: 'bottom',
+		animationEnabled: true,
+		swipeEnabled: false,
+	}
+);
+
+const AuthStack = createStackNavigator({ SignIn: SignInScreen })
+
+export default createSwitchNavigator(
+	{
+		LoadApp: LoadApp,
+		App: AppTab,
+		Auth: AuthStack,
+	},
+	{
+		initialRouteName: 'LoadApp',
+	}
+);
