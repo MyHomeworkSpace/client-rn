@@ -1,12 +1,13 @@
 import React from 'react';
-import { AsyncStorage } from 'react-native'
+import { AsyncStorage, Text } from 'react-native'
+import { createStackNavigator } from 'react-navigation';
 
 import Loading from '../Loading.js'
 
 class SettingsView extends React.Component {
     static navigationOptions = {
-        title: 'Settings',
-    };
+		title: "Settings",
+	};
 
     constructor(props) {
         super(props)
@@ -26,7 +27,8 @@ class SettingsView extends React.Component {
 			}).then((text) => {
                 console.log(text);
 				this.setState({
-					me: JSON.parse(text)
+                    me: JSON.parse(text),
+                    loading: false,
                 });
                 console.log(this.state.me)
 			}).catch((error) => {
@@ -39,9 +41,18 @@ class SettingsView extends React.Component {
 
     render() {
         if(!this.state.loading) {
-
+            return (<Text>
+                {JSON.stringify(this.state.me)}
+            </Text>)
         } else return <Loading />
     }
 }
 
-export default SettingsView;
+export default createStackNavigator(
+	{
+		SettingsView: SettingsView,
+	},
+	{
+		initialRouteName: 'SettingsView',
+	}
+);
