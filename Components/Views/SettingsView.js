@@ -35,7 +35,7 @@ class SettingsView extends React.Component {
                 console.error(error)
             });
         }).catch((error) => {
-            console.error(error);
+            alert(error);
         })
     }
 
@@ -46,7 +46,7 @@ class SettingsView extends React.Component {
                 <Text style={styles.subtitle}>Grade {this.state.me.grade} | {this.state.me.user.email} {this.state.me.level > 0 ? (<Text>| <Text style={styles.admin}>Admin</Text></Text>) : null}</Text>
                 <Button title="Sign Out" color="red" onPress={async () => {
                     await AsyncStorage.clear();
-                    this.props.navigation.navigate('Auth');
+                    this.props.navigation.navigate('LoadApp');
                 }} />
             </ScrollView>)
         } else return <Loading />

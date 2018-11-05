@@ -1,19 +1,23 @@
 import React from 'react';
 import { KeyboardAvoidingView, AsyncStorage, Button, TextInput, Picker, StyleSheet, Text, Switch } from 'react-native';
+import HeaderButtons, { HeaderButton, Item } from 'react-navigation-header-buttons';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
 import Loading from '../Loading.js'
 import moment from 'moment';
+
+const IoniconsHeaderButton = passMeFurther => (
+	<HeaderButton {...passMeFurther} IconComponent={Icon} iconSize={23} />
+);
 
 class EditHomework extends React.Component {
 	static navigationOptions = ({ navigation }) => {
 		return {
 			title: "Assignment Details",
 			headerRight: (
-				<Button
-					onPress={navigation.getParam('save')}
-					title="Save"
-				/>
+				<HeaderButtons HeaderButtonComponent={IoniconsHeaderButton}>
+					<Item title="Save" onPress={navigation.getParam('save')} />
+				</HeaderButtons>
 			),
 		}
 	};
@@ -36,36 +40,36 @@ class EditHomework extends React.Component {
 		//if(check != true) {
 		//	this.state.error = check;
 		//} else {
-			AsyncStorage.getItem('csrfToken').then((token) => {
-				fetch(`https://api-v2.myhomework.space/homework/${method}?csrfToken=${token}`, {
-					method: 'POST',
-					credentials: 'include',
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-					},
-					body: this.encoodeFormBody({
-						"name": this.state.name,
-						"due": moment(this.state.due).format("YYYY-MM-DD"),
-						"desc": this.state.desc,
-						"complete": (this.state.complete ? 1 : 0),
-						"classId": this.state.classId,
-						"id": this.state.id
-					})
-				}).then((response) => {
-					return response.text();
-				}).then((text) => {
-					text = JSON.parse(text);
-					if(text.status == "error") {
-						this.setState({error: text.error})
-					} else {
-						this.props.navigation.goBack()
-					}
-				}).catch((error) => {
-					console.error(error)
+		AsyncStorage.getItem('csrfToken').then((token) => {
+			fetch(`https://api-v2.myhomework.space/homework/${method}?csrfToken=${token}`, {
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+				},
+				body: this.encoodeFormBody({
+					"name": this.state.name,
+					"due": moment(this.state.due).format("YYYY-MM-DD"),
+					"desc": this.state.desc,
+					"complete": (this.state.complete ? 1 : 0),
+					"classId": this.state.classId,
+					"id": this.state.id
 				})
+			}).then((response) => {
+				return response.text();
+			}).then((text) => {
+				text = JSON.parse(text);
+				if (text.status == "error") {
+					this.setState({ error: text.error })
+				} else {
+					this.props.navigation.goBack()
+				}
 			}).catch((error) => {
-				console.error(error);
+				console.error(error)
 			})
+		}).catch((error) => {
+			console.error(error);
+		})
 		//}
 	}
 
