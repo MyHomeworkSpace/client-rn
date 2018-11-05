@@ -86,7 +86,7 @@ class HomeworkViewScreen extends React.Component {
 	}
 
 	render() {
-		if (!this.state.loading) {
+		if (!this.state.loading && this.state.prefixes) {
 			let overdue = [];
 			let today = [];
 			let tomorrow = [];
