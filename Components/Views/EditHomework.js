@@ -2,6 +2,7 @@ import React from 'react';
 import { KeyboardAvoidingView, AsyncStorage, Button, TextInput, Picker, StyleSheet, Text, Switch } from 'react-native';
 import HeaderButtons, { HeaderButton, Item } from 'react-navigation-header-buttons';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import Loading from '../Loading.js'
 import moment from 'moment';
