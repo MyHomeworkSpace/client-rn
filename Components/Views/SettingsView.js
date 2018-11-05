@@ -63,7 +63,8 @@ const styles = StyleSheet.create({
     subtitle: {
         textAlign: "center",
         color: "#777777",
-        paddingTop: 5
+        paddingTop: 5,
+        paddingBottom: 10
     },
     admin: {
         color: "blue"
