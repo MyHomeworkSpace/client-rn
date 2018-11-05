@@ -44,6 +44,31 @@ class HomeworkViewScreen extends React.Component {
 			}).catch((error) => {
 				console.error(error)
 			});
+			fetch('https://api-v2.myhomework.space/prefixes/getDefaultList?&csrfToken=' + token, {
+				method: 'GET',
+				credentials: 'include'
+			}).then((response) => {
+				return response.text();
+			}).then((text) => {
+				const list = JSON.parse(text).prefixes;
+				const reference = {};
+				for (const i in list) {
+					const bg = list[i].background;
+					const color = list[i].color;
+					for(const j in list[i].words){
+						reference[list[i].words[j]] = {
+							background: bg,
+							color: color
+						}
+					}
+					console.log(reference);
+				}
+				this.setState({
+					prefixes: reference
+				});
+			}).catch((error) => {
+				console.error(error)
+			});
 		}).catch((error) => {
 			console.error(error);
 		})
@@ -98,7 +123,7 @@ class HomeworkViewScreen extends React.Component {
 					<SectionList
 						sections={sections}
 						renderItem={
-							({ item }) => <HomeworkListItem homeworkItem={item} onPress={function () {
+							({ item }) => <HomeworkListItem prefixes={this.state.prefixes} homeworkItem={item} onPress={function () {
 								this.props.navigation.navigate('EditHomework', { homework: item })
 							}.bind(this)} />}
 						renderSectionHeader={({ section }) => (<Text style={styles.sectionHeader}>{section.title}</Text>)}
