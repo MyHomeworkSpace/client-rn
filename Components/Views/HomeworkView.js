@@ -1,23 +1,26 @@
 import React from 'react';
 import { SectionList, Text, StyleSheet, View, AsyncStorage, Button, Image } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
+import Icon from 'react-native-vector-icons/Ionicons';
+import HeaderButtons, { HeaderButton, Item } from 'react-navigation-header-buttons';
 
 import EditHomework from './EditHomework.js'
 import HomeworkListItem from "../HomeworkListItem.js"
 import Loading from '../Loading.js'
 
+
+const IoniconsHeaderButton = passMeFurther => (
+	<HeaderButton {...passMeFurther} IconComponent={Icon} iconSize={23} />
+  );
+  
 class HomeworkViewScreen extends React.Component {
 	static navigationOptions = ({ navigation }) => {
 		return {
-			headerTitle: (<Image
-				source={require('../../assets/mhs.png')}
-				style={{ width: 30, height: 30, marginLeft: 5, marginRight: 5 }}
-			/>),
+			title: "MyHomeworkSpace",
 			headerRight: (
-				<Button
-					onPress={() => navigation.navigate('EditHomework')}
-					title="Add"
-				/>
+				<HeaderButtons HeaderButtonComponent={IoniconsHeaderButton}>
+					<Item title="Add" onPress={() => navigation.navigate('EditHomework')} />
+				</HeaderButtons>
 			),
 		};
 	};
@@ -95,8 +98,8 @@ class HomeworkViewScreen extends React.Component {
 					<SectionList
 						sections={sections}
 						renderItem={
-							({ item }) => <HomeworkListItem homeworkItem={item} onPress={function() {
-								this.props.navigation.navigate('EditHomework', {homework: item })
+							({ item }) => <HomeworkListItem homeworkItem={item} onPress={function () {
+								this.props.navigation.navigate('EditHomework', { homework: item })
 							}.bind(this)} />}
 						renderSectionHeader={({ section }) => (<Text style={styles.sectionHeader}>{section.title}</Text>)}
 						keyExtractor={(item, index) => index}
@@ -127,7 +130,7 @@ const styles = StyleSheet.create({
 	},
 })
 
-const HomeworkViewStack = createStackNavigator(
+export default createStackNavigator(
 	{
 		HomeworkView: HomeworkViewScreen,
 		EditHomework: EditHomework
@@ -136,10 +139,3 @@ const HomeworkViewStack = createStackNavigator(
 		initialRouteName: 'HomeworkView',
 	}
 );
-
-export default class HomeworkView extends React.Component {
-	render() {
-		return <HomeworkViewStack />;
-	}
-}
-
