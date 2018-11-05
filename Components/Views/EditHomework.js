@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyboardAvoidingView, AsyncStorage, Button, TextInput, Picker, StyleSheet, Text, Switch, View } from 'react-native';
+import { KeyboardAvoidingView, AsyncStorage, Button, TextInput, Picker, StyleSheet, Text, Switch } from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
 import Loading from '../Loading.js'
@@ -131,9 +131,12 @@ class EditHomework extends React.Component {
 				<DateTimePicker
 					isVisible={this.state.showingDueDatePicker}
 					onConfirm={(date) => {
-						this.setState({ due: date })
+						this.setState({
+							due: date,
+							showingDueDatePicker: false,
+						})
 					}}
-					onCancel={() => this.setState({ showingDueDatePicker: true })}
+					onCancel={() => this.setState({ showingDueDatePicker: false })}
 				/>
 				<Text>Done?</Text>
 				<Switch
