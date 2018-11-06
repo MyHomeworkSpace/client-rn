@@ -1,5 +1,5 @@
 import React from 'react';
-import { AsyncStorage, Text, ScrollView, StyleSheet, Button } from 'react-native'
+import { AsyncStorage, Text, ScrollView, StyleSheet, Button, View } from 'react-native'
 import { createStackNavigator } from 'react-navigation';
 
 import Loading from '../Loading.js'
@@ -18,10 +18,12 @@ class SettingsView extends React.Component {
     }
 
     load() {
-        AsyncStorage.getItem('csrfToken').then((token) => {
-            fetch('https://api-v2.myhomework.space/auth/me?csrfToken=' + token, {
+        AsyncStorage.getItem('token').then((token) => {
+            fetch('https://api-v2.myhomework.space/auth/me', {
                 method: 'GET',
-                credentials: 'include'
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
             }).then((response) => {
                 return response.text();
             }).then((text) => {
@@ -39,21 +41,19 @@ class SettingsView extends React.Component {
 
     render() {
         if (!this.state.loading) {
-            if(this.state.me.error == "logged_out") return <Button title="Fix App" onPress={async () => {await AsyncStorage.clear(); this.props.navigation.navigate('LoadApp');}}/>
+            if (this.state.me.error == "logged_out") {
+                AsyncStorage.getAllKeys((keys) => console.log(keys))
+                AsyncStorage.getItem("token", (token) => console.log(token))
+                return (<View>
+                    <Button title="Fix App" onPress={async () => { await AsyncStorage.clear(); this.props.navigation.navigate('LoadApp'); }} />
+                </View>)
+            }
             return (<ScrollView>
                 <Text style={styles.hello}>Hi, {this.state.me.user.name.split(' ')[0]}</Text>
                 <Text style={styles.subtitle}>Grade {this.state.me.grade} | {this.state.me.user.email} {this.state.me.level > 0 ? (<Text>| <Text style={styles.admin}>Admin</Text></Text>) : null}</Text>
                 <Button title="Sign Out" color="red" onPress={async () => {
-                    const token = await AsyncStorage.getItem("csrfToken")
-                    await AsyncStorage.removeItem("csrfToken");
-                    fetch("https://api-v2.myhomework.space/auth/logout?csrfToken=" + token, {credentials: 'include'})
-                    .then((response) => {
-                        this.props.navigation.navigate('LoadApp');
-                        return response.text()
-                    }).catch((error) => {
-                        alert("Could not reach MyHomeworkSpace server. Note: You will still be logged out, however, if you relaunch the app, you will be logged in again without neecing to enter your credentials");
-                        this.props.navigation.navigate('LoadApp');
-                    })
+                    await AsyncStorage.removeItem("token");
+                    this.props.navigation.navigate('LoadApp');
                 }} />
             </ScrollView>)
         } else return <Loading />

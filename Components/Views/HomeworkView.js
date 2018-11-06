@@ -29,10 +29,12 @@ class HomeworkViewScreen extends React.Component {
 		this.setState({
 			refreshing: true
 		})
-		AsyncStorage.getItem('csrfToken').then((token) => {
-			fetch('https://api-v2.myhomework.space/homework/getHWViewSorted?showToday=true&csrfToken=' + token, {
+		AsyncStorage.getItem('token').then((token) => {
+			fetch('https://api-v2.myhomework.space/homework/getHWViewSorted?showToday=true', {
 				method: 'GET',
-				credentials: 'include'
+				headers: {
+					'Authorization': 'Bearer ' + token
+				},
 			}).then((response) => {
 				return response.text();
 			}).then((text) => {
@@ -44,9 +46,11 @@ class HomeworkViewScreen extends React.Component {
 			}).catch((error) => {
 				console.error(error)
 			});
-			fetch('https://api-v2.myhomework.space/prefixes/getDefaultList?&csrfToken=' + token, {
+			fetch('https://api-v2.myhomework.space/prefixes/getDefaultList', {
 				method: 'GET',
-				credentials: 'include'
+				headers: {
+					'Authorization': 'Bearer ' + token
+				},
 			}).then((response) => {
 				return response.text();
 			}).then((text) => {

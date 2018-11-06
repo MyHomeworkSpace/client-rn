@@ -41,12 +41,12 @@ class EditHomework extends React.Component {
 		//if(check != true) {
 		//	this.state.error = check;
 		//} else {
-		AsyncStorage.getItem('csrfToken').then((token) => {
-			fetch(`https://api-v2.myhomework.space/homework/${method}?csrfToken=${token}`, {
+		AsyncStorage.getItem('token').then((token) => {
+			fetch(`https://api-v2.myhomework.space/homework/${method}`, {
 				method: 'POST',
-				credentials: 'include',
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+					'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+					'Authorization': 'Bearer ' + token
 				},
 				body: this.encoodeFormBody({
 					"name": this.state.name,
@@ -99,10 +99,12 @@ class EditHomework extends React.Component {
 	}
 
 	load() {
-		AsyncStorage.getItem('csrfToken').then((token) => {
-			fetch('https://api-v2.myhomework.space/classes/get?csrfToken=' + token, {
+		AsyncStorage.getItem('token').then((token) => {
+			fetch('https://api-v2.myhomework.space/classes/get', {
 				method: 'GET',
-				credentials: 'include'
+				headers: {
+					'Authorization': 'Bearer ' + token
+				},
 			}).then((response) => {
 				return response.text();
 			}).then((text) => {

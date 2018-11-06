@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, Text, AsyncStorage } from 'react-native';
+import { View, StyleSheet, Text, AsyncStorage, Button } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 import moment from 'moment';
 
 import Loading from '../Loading.js'
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator, createSwitchNavigator } from 'react-navigation';
 
 
 class CalendarView extends React.Component {
@@ -23,10 +23,25 @@ class CalendarView extends React.Component {
     }
 
     load = async () => {
-        const token = await AsyncStorage.getItem('csrfToken');
+        const token = await AsyncStorage.getItem('token');
         this.setState({
             token: token,
-            loading: false,
+        })
+        fetch(`https://api-v2.myhomework.space/calendar/getStatus`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        }).then((response) => {
+            return response.text();
+        }).then((text) => {
+            if (JSON.parse(text).statusNum != 1) {
+                this.props.navigation.navigate("GetScheduleView");
+            } else {
+                this.setState({
+                    loading: false,
+                })
+            }
         })
     }
 
@@ -39,9 +54,11 @@ class CalendarView extends React.Component {
                     if (this.state.monthsLoaded.indexOf(moment(month).format("YYYY-MM") < 0)) {
                         const start = moment().startOf('month').startOf('week').format("YYYY-MM-DD");
                         const end = moment().endOf('month').endOf('week').format("YYYY-MM-DD");
-                        fetch(`https://api-v2.myhomework.space/calendar/getView?csrfToken=${this.state.token}&start=${start}&end=${end}`, {
+                        return fetch(`https://api-v2.myhomework.space/calendar/getView?start=${start}&end=${end}`, {
                             method: 'GET',
-                            credentials: 'include',
+                            headers: {
+                                'Authorization': 'Bearer ' + this.state.token
+                            },
                         }).then((response) => {
                             return response.text();
                         }).then((text) => {
@@ -77,16 +94,16 @@ class CalendarView extends React.Component {
     renderItem(item) {
         return (
             <View>
-            {
-                item.type == "friday" || item.type == "announcement" ?
-                    <View style={styles.noBgItem}><Text style={styles.grayText}>{item.name}</Text></View>
-                    : (<View style={styles.item}>
-                        <Text style={styles.itemName}>{item.name}</Text>
-                        <Text style={styles.times}>{moment(item.start*1000).format("h:mm a") + " - " + moment(item.end*1000).format("h:mm a")}</Text>
-                        {item.data.ownerName ? <Text style={styles.small}>{item.data.ownerName}</Text> : null}
-                        {item.data.buildingName ? <Text style={styles.small}>{item.data.buildingName + " " + item.data.roomNumber}</Text> : null}
-                    </View>)
-            }
+                {
+                    item.type == "friday" || item.type == "announcement" ?
+                        <View style={styles.noBgItem}><Text style={styles.grayText}>{item.name}</Text></View>
+                        : (<View style={styles.item}>
+                            <Text style={styles.itemName}>{item.name}</Text>
+                            <Text style={styles.times}>{moment(item.start * 1000).format("h:mm a") + " - " + moment(item.end * 1000).format("h:mm a")}</Text>
+                            {item.data.ownerName ? <Text style={styles.small}>{item.data.ownerName}</Text> : null}
+                            {item.data.buildingName ? <Text style={styles.small}>{item.data.buildingName + " " + item.data.roomNumber}</Text> : null}
+                        </View>)
+                }
             </View>
         );
     }
@@ -104,6 +121,23 @@ class CalendarView extends React.Component {
     timeToString(time) {
         const date = new Date(time);
         return date.toISOString().split('T')[0];
+    }
+}
+
+class GetScheduleView extends React.Component {
+
+    static navigationOptions = {
+        title: "Setup Calendar",
+    };
+
+    render() {
+        return <View>
+            <Text style={styles.importTitle}>Welcome to Calendar</Text>
+            <Text style={styles.importBlurb}>The Calendar allows you to plan out when you will do your homework, tests, quizzes, and other events.</Text>
+            <Text style={styles.importBlurb}>Currently Calendar can only be setup on the website, over at https://myhomework.space. Setup takes
+            about 30 seconds, and you only need to do it once.</Text>
+            <Button title="I setup calendar online" onPress={() => this.props.navigation.navigate('CalendarView')}/>
+        </View>
     }
 }
 
@@ -137,12 +171,25 @@ const styles = StyleSheet.create({
     small: {
         color: '#777777',
         fontSize: 13
+    },
+    importTitle: {
+        padding: 10,
+        fontWeight: "bold",
+        fontSize: 30,
+        textAlign: "center"
+    },
+    importBlurb: {
+        textAlign: "center",
+        paddingLeft: 15,
+        paddingRight: 15,
+        paddingBottom: 15,
     }
 });
 
-export default createStackNavigator(
+export default createSwitchNavigator(
     {
-        CalendarView: CalendarView,
+        CalendarView: createStackNavigator({CalendarView : CalendarView}),
+        GetScheduleView: createStackNavigator({GetScheduleView : GetScheduleView}),
     },
     {
         initialRouteName: 'CalendarView',
