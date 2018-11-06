@@ -44,7 +44,7 @@ class SignInScreen extends React.Component {
 		return formBody.join("&");
 	}
 
-	handlePress = async () => {
+	handlePress() {
 		this.setState({ loading: true })
 		fetch('https://api-v2.myhomework.space/auth/login?csrfToken=' + this.state.token, {
 			method: 'POST',
