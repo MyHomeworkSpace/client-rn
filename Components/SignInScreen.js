@@ -4,6 +4,10 @@ import { Text, View, StyleSheet, TextInput, Button, AsyncStorage } from 'react-n
 import Loading from './Loading'
 
 class SignInScreen extends React.Component {
+	static navigationOptions = {
+        title: "Sign In",
+    };
+
 	constructor(props) {
 		super(props);
 		this.state = {

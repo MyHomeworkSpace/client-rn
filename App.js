@@ -6,6 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomeworkView from './Components/Views/HomeworkView.js'
 import SettingsView from "./Components/Views/SettingsView.js"
 import CalendarView from "./Components/Views/CalendarView.js"
+import WelcomeScreen from './Components/Views/WelcomeScreen.js'
 import Loading from "./Components/Loading.js"
 import SignInScreen from './Components/SignInScreen.js'
 
@@ -59,7 +60,10 @@ const AppTab = createBottomTabNavigator(
 	}
 );
 
-const AuthStack = createStackNavigator({ SignIn: SignInScreen })
+const AuthStack = createStackNavigator({
+	Welcome: WelcomeScreen,
+	SignIn: SignInScreen
+})
 
 export default createSwitchNavigator(
 	{
