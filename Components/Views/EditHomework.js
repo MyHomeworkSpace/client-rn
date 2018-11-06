@@ -89,6 +89,7 @@ class EditHomework extends React.Component {
 		const { params } = this.props.navigation.state;
 		if (params) {
 			this.state = params.homework;
+			this.state.complete = (this.state.complete == 1 ? true : false)
 			this.state.new = false;
 		} else {
 			this.state = { new: true };
@@ -145,8 +146,8 @@ class EditHomework extends React.Component {
 				/>
 				<Text>Done?</Text>
 				<Switch
-					onValueChange={(value) => this.setState({ completed: value })}
-					value={this.state.completed} />
+					onValueChange={(value) => this.setState({ complete: value })}
+					value={this.state.complete} />
 				<Picker
 					selectedValue={this.state.classId}
 					onValueChange={(itemValue, itemIndex) => this.setState({ classId: itemValue })}>
