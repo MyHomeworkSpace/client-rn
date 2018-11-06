@@ -24,9 +24,6 @@ class SignInScreen extends React.Component {
 				token: JSON.parse(text).token,
 				pageLoading: false,
 			});
-			return JSON.parse(text).token;
-		}).then((token) => {
-			return AsyncStorage.setItem('csrfToken', token);
 		}).catch((error) => {
 			alert("Could not connect to MyHomeworkSpace server.")
 		});
@@ -47,7 +44,7 @@ class SignInScreen extends React.Component {
 		return formBody.join("&");
 	}
 
-	handlePress() {
+	handlePress = async () => {
 		this.setState({ loading: true })
 		fetch('https://api-v2.myhomework.space/auth/login?csrfToken=' + this.state.token, {
 			method: 'POST',
@@ -66,7 +63,7 @@ class SignInScreen extends React.Component {
 					signInError: data.error
 				})
 			} else {
-				this.props.navigation.navigate('App');
+				AsyncStorage.setItem('csrfToken', this.state.token, () => this.props.navigation.navigate('App'));
 			}
 		}).catch((error) => {
 			console.error(`Error during sign-in request\n${error}`);

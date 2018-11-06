@@ -33,18 +33,27 @@ class SettingsView extends React.Component {
                 console.error(error)
             });
         }).catch((error) => {
-            alert(error);
+            alert("Could not connect to MyHomeworkSpace server.");
         })
     }
 
     render() {
         if (!this.state.loading) {
+            if(this.state.me.error == "logged_out") return <Button title="Fix App" onPress={async () => {await AsyncStorage.clear(); this.props.navigation.navigate('LoadApp');}}/>
             return (<ScrollView>
                 <Text style={styles.hello}>Hi, {this.state.me.user.name.split(' ')[0]}</Text>
                 <Text style={styles.subtitle}>Grade {this.state.me.grade} | {this.state.me.user.email} {this.state.me.level > 0 ? (<Text>| <Text style={styles.admin}>Admin</Text></Text>) : null}</Text>
                 <Button title="Sign Out" color="red" onPress={async () => {
-                    await AsyncStorage.clear();
-                    this.props.navigation.navigate('LoadApp');
+                    const token = await AsyncStorage.getItem("csrfToken")
+                    await AsyncStorage.removeItem("csrfToken");
+                    fetch("https://api-v2.myhomework.space/auth/logout?csrfToken=" + token, {credentials: 'include'})
+                    .then((response) => {
+                        this.props.navigation.navigate('LoadApp');
+                        return response.text()
+                    }).catch((error) => {
+                        alert("Could not reach MyHomeworkSpace server. Note: You will still be logged out, however, if you relaunch the app, you will be logged in again without neecing to enter your credentials");
+                        this.props.navigation.navigate('LoadApp');
+                    })
                 }} />
             </ScrollView>)
         } else return <Loading />
