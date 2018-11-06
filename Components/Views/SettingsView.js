@@ -25,12 +25,10 @@ class SettingsView extends React.Component {
             }).then((response) => {
                 return response.text();
             }).then((text) => {
-                console.log(text);
                 this.setState({
                     me: JSON.parse(text),
                     loading: false,
                 });
-                console.log(this.state.me)
             }).catch((error) => {
                 console.error(error)
             });

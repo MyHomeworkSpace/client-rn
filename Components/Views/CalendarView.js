@@ -36,7 +36,6 @@ class CalendarView extends React.Component {
             <Agenda
                 items={this.state.items}
                 loadItemsForMonth={(month) => {
-                    console.log(this.state);
                     if (this.state.monthsLoaded.indexOf(moment(month).format("YYYY-MM") < 0)) {
                         const start = moment().startOf('month').startOf('week').format("YYYY-MM-DD");
                         const end = moment().endOf('month').endOf('week').format("YYYY-MM-DD");

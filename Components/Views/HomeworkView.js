@@ -61,7 +61,6 @@ class HomeworkViewScreen extends React.Component {
 							color: color
 						}
 					}
-					console.log(reference);
 				}
 				this.setState({
 					prefixes: reference

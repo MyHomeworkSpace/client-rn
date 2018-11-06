@@ -20,7 +20,6 @@ class SignInScreen extends React.Component {
 		}).then((response) => {
 			return response.text();
 		}).then((text) => {
-			console.log(JSON.parse(text));
 			this.setState({
 				token: JSON.parse(text).token,
 				pageLoading: false,

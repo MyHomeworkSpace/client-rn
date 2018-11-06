@@ -17,7 +17,6 @@ class LoadApp extends React.Component {
 
 	load = async () => {
 		const token = await AsyncStorage.getItem("csrfToken");
-		console.log(token);
 		this.props.navigation.navigate(token ? "App" : "Auth");
 	}
 
