@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyboardAvoidingView, AsyncStorage, Button, TextInput, Picker, StyleSheet, Text, Switch } from 'react-native';
+import { View, KeyboardAvoidingView, AsyncStorage, Button, TextInput, Picker, StyleSheet, Text, Switch } from 'react-native';
 import HeaderButtons, { HeaderButton, Item } from 'react-navigation-header-buttons';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -42,20 +42,23 @@ class EditHomework extends React.Component {
 		//	this.state.error = check;
 		//} else {
 		AsyncStorage.getItem('token').then((token) => {
+			body = {
+				name: this.state.name,
+				due: moment(this.state.due).format("YYYY-MM-DD"),
+				desc: this.state.desc,
+				complete: (this.state.complete ? 1 : 0),
+				classId: this.state.classId,
+			}
+			if(!this.state.new) {
+				body.id = this.state.id
+			}
 			fetch(`https://api-v2.myhomework.space/homework/${method}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
 					'Authorization': 'Bearer ' + token
 				},
-				body: this.encoodeFormBody({
-					"name": this.state.name,
-					"due": moment(this.state.due).format("YYYY-MM-DD"),
-					"desc": this.state.desc,
-					"complete": (this.state.complete ? 1 : 0),
-					"classId": this.state.classId,
-					"id": this.state.id
-				})
+				body: this.encodeFormBody(body)
 			}).then((response) => {
 				return response.text();
 			}).then((text) => {
@@ -74,7 +77,7 @@ class EditHomework extends React.Component {
 		//}
 	}
 
-	encoodeFormBody(body) {
+	encodeFormBody(body) {
 		let formBody = [];
 		for (const property in body) {
 			const encodedKey = encodeURIComponent(property);
@@ -122,7 +125,7 @@ class EditHomework extends React.Component {
 
 	render() {
 		if (!this.state.loading) {
-			return (<KeyboardAvoidingView style={{ padding: 10, flex: 1, flexDirection: "column" }}>
+			return (<KeyboardAvoidingView style={{ flex: 1, flexDirection: "column" }}>
 				{this.state.error ? <Text style={styles.Error}>{this.state.error}</Text> : null}
 				<TextInput
 					placeholder="Assignment Name"
@@ -130,29 +133,39 @@ class EditHomework extends React.Component {
 					onChangeText={(text) => this.setState({ name: text, changed: true })}
 					style={styles.input}
 				/>
-				<Button onPress={() => this.setState({ showingDueDatePicker: true })}
-					title={"Due " +
-						(this.state.due
-							? moment(this.state.due).format("ddd, MMM Do")
-							: "date not set")}
-				/>
-				<DateTimePicker
-					isVisible={this.state.showingDueDatePicker}
-					onConfirm={(date) => {
-						this.setState({
-							due: date,
-							showingDueDatePicker: false,
-						})
-					}}
-					onCancel={() => this.setState({ showingDueDatePicker: false })}
-				/>
-				<Text>Done?</Text>
-				<Switch
-					onValueChange={(value) => this.setState({ complete: value })}
-					value={this.state.complete} />
+				<View style={[[styles.inputWrapper, styles.inputWrapperFixedHeight], styles.topInput]}>
+					<View style={styles.labelWrapper}>
+						<Text style={styles.label}>Due</Text>
+					</View>
+					<View style={styles.labelWrapper}>
+						<Button onPress={() => this.setState({ showingDueDatePicker: true })}
+							title={
+								this.state.due
+									? moment(this.state.due).format("ddd, MMM Do")
+									: "Set..."}
+						/>
+					</View>
+					<DateTimePicker
+						isVisible={this.state.showingDueDatePicker}
+						onConfirm={(date) => {
+							this.setState({
+								due: date,
+								showingDueDatePicker: false,
+							})
+						}}
+						onCancel={() => this.setState({ showingDueDatePicker: false })}
+					/>
+				</View>
+				<View style={[styles.inputWrapper, styles.inputWrapperFixedHeight]}>
+					<View style={styles.labelWrapper}><Text style={styles.label}>Done?</Text></View>
+					<Switch
+						onValueChange={(value) => this.setState({ complete: value })}
+						value={this.state.complete} />
+				</View>
 				<Picker
 					selectedValue={this.state.classId}
-					onValueChange={(itemValue, itemIndex) => this.setState({ classId: itemValue })}>
+					onValueChange={(itemValue, itemIndex) => this.setState({ classId: itemValue })}
+					style={{borderBottomWidth: 1, borderBottomColor: "#cccccc"}}>
 					{this.state.classes.map((classItem, i) => {
 						return <Picker.Item label={classItem.name} value={classItem.id} key={"classitem_" + i} />
 					})}
@@ -160,8 +173,8 @@ class EditHomework extends React.Component {
 				<TextInput
 					placeholder="Description"
 					value={this.state.desc}
-					onChangeText={(text) => this.setState({ description: text })}
-					style={styles.input}
+					onChangeText={(text) => this.setState({ desc: text })}
+					style={[styles.input, {height: 500}]}
 					multiline={true}
 				/>
 			</KeyboardAvoidingView>);
@@ -172,10 +185,37 @@ class EditHomework extends React.Component {
 const styles = StyleSheet.create({
 	input: {
 		height: 50,
-		fontSize: 20
+		fontSize: 20,
+		paddingLeft: 10,
+		paddingRight: 10,
 	},
 	Error: {
 		color: "red",
+	},
+	topInput: {
+		borderTopWidth: 1,
+		borderTopColor: "#cccccc",
+	},
+	inputWrapper: {
+		flexDirection: "row",
+		width: "100%",
+		justifyContent: 'space-between',
+		paddingLeft: 10,
+		paddingRight: 5,
+		borderBottomWidth: 1,
+		borderBottomColor: "#cccccc",
+	},
+	inputWrapperFixedHeight: {
+		height: 40,
+	},
+	center: {
+		justifyContent: 'center'
+	},
+	labelWrapper: {
+		justifyContent: 'center'
+	},
+	label: {
+		fontSize: 20
 	}
 })
 
