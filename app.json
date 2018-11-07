@@ -27,8 +27,9 @@
       "bundleIdentifier": "space.myhomework.clientrn"
     },
     "android": {
-      "versonCode": 1,
-      "package": "space.myhomework.clientrn"
+      "versionCode": 1,
+      "package": "space.myhomework.clientrn",
+      "permissions": []
     },
     "githubUrl": "https://github.com/MyHomeworkSpace/client-rn"
   }
