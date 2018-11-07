@@ -125,7 +125,7 @@ class EditHomework extends React.Component {
 
 	render() {
 		if (!this.state.loading) {
-			return (<KeyboardAvoidingView style={{ flex: 1, flexDirection: "column" }}>
+			return (<KeyboardAvoidingView behavior="position" style={{ flex: 1, flexDirection: "column" }}>
 				{this.state.error ? <Text style={styles.Error}>{this.state.error}</Text> : null}
 				<TextInput
 					placeholder="Assignment Name"
@@ -165,7 +165,8 @@ class EditHomework extends React.Component {
 				<Picker
 					selectedValue={this.state.classId}
 					onValueChange={(itemValue, itemIndex) => this.setState({ classId: itemValue })}
-					style={{borderBottomWidth: 1, borderBottomColor: "#cccccc"}}>
+					// style={{borderBottomWidth: 1, borderBottomColor: "#cccccc"}}
+					>
 					{this.state.classes.map((classItem, i) => {
 						return <Picker.Item label={classItem.name} value={classItem.id} key={"classitem_" + i} />
 					})}
@@ -174,7 +175,7 @@ class EditHomework extends React.Component {
 					placeholder="Description"
 					value={this.state.desc}
 					onChangeText={(text) => this.setState({ desc: text })}
-					style={[styles.input, {height: 500}]}
+					style={[styles.input, styles.multiline, {height: "100%"}]}
 					multiline={true}
 				/>
 			</KeyboardAvoidingView>);
@@ -188,6 +189,9 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		paddingLeft: 10,
 		paddingRight: 10,
+	},
+	multiline: {
+		textAlignVertical: 'top'
 	},
 	Error: {
 		color: "red",
