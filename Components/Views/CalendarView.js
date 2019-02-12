@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, AsyncStorage, Button } from 'react-native';
+import { View, StyleSheet, Text, AsyncStorage, Button, Image } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 import moment from 'moment';
 
@@ -131,12 +131,13 @@ class GetScheduleView extends React.Component {
     };
 
     render() {
-        return <View>
+        return <View style={styles.import}>
+            <Image source={require("../../assets/img/calendar.png")} style={{ width: 295, height: 200 }} />
             <Text style={styles.importTitle}>Welcome to Calendar</Text>
             <Text style={styles.importBlurb}>The Calendar allows you to plan out when you will do your homework, tests, quizzes, and other events.</Text>
             <Text style={styles.importBlurb}>Currently Calendar can only be setup on the website, over at https://myhomework.space. Setup takes
             about 30 seconds, and you only need to do it once.</Text>
-            <Button title="I setup calendar online" onPress={() => this.props.navigation.navigate('CalendarView')}/>
+            <Button title="I setup calendar online" onPress={() => this.props.navigation.navigate('CalendarView')} />
         </View>
     }
 }
@@ -174,6 +175,7 @@ const styles = StyleSheet.create({
     },
     importTitle: {
         padding: 10,
+        paddingTop: 20,
         fontWeight: "bold",
         fontSize: 30,
         textAlign: "center"
@@ -183,13 +185,19 @@ const styles = StyleSheet.create({
         paddingLeft: 15,
         paddingRight: 15,
         paddingBottom: 15,
+    },
+    import: {
+        flex: 1,
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
     }
 });
 
 export default createSwitchNavigator(
     {
-        CalendarView: createStackNavigator({CalendarView : CalendarView}),
-        GetScheduleView: createStackNavigator({GetScheduleView : GetScheduleView}),
+        CalendarView: createStackNavigator({ CalendarView: CalendarView }),
+        GetScheduleView: createStackNavigator({ GetScheduleView: GetScheduleView }),
     },
     {
         initialRouteName: 'CalendarView',
