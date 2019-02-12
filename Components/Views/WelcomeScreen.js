@@ -9,16 +9,16 @@ class Loading extends React.Component {
 
     render() {
         return (
-            <ImageBackground source={require('../../assets/bg1.jpg')} style={{ width: '100%', height: '100%' }}>
+            <ImageBackground source={require('../../assets/img/bg1.jpg')} style={{ width: '100%', height: '100%' }}>
                 <View style={styles.container}>
                     <LottieView
-                        source={require('../../assets/introAnimation.json')}
+                        source={require('../../assets/animation/introAnimation.json')}
                         loop={false}
                         style={{ paddingBottom: 40 }}
                         autoPlay
                     />
                 </View>
-                <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("SignIn") }>
+                <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate("SignIn")}>
                     <Text style={styles.buttonText}>Get Started</Text>
                 </TouchableOpacity>
             </ImageBackground>
