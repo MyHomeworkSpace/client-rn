@@ -11,8 +11,8 @@ import Loading from '../Loading.js'
 
 const IoniconsHeaderButton = passMeFurther => (
 	<HeaderButton {...passMeFurther} IconComponent={Icon} iconSize={23} />
-  );
-  
+);
+
 class HomeworkViewScreen extends React.Component {
 	static navigationOptions = ({ navigation }) => {
 		return {
@@ -59,7 +59,7 @@ class HomeworkViewScreen extends React.Component {
 				for (const i in list) {
 					const bg = list[i].background;
 					const color = list[i].color;
-					for(const j in list[i].words){
+					for (const j in list[i].words) {
 						reference[list[i].words[j]] = {
 							background: bg,
 							color: color
@@ -121,6 +121,12 @@ class HomeworkViewScreen extends React.Component {
 			if (tomorrow.length > 0) sections.push({ title: "Due Tomorrow", data: tomorrow })
 			if (soon.length > 0) sections.push({ title: "Due Soon", data: soon })
 			if (longterm.length > 0) sections.push({ title: "Long Term", data: longterm })
+			if (sections.length == 0) {
+				return <View style={styles.containerEmpty}>
+					<Image style={{ height: 200, width: 200 }} source={require("../../assets/img/nodata.png")} />
+					<Text style={{ paddingTop: 30, color: "#666666" }}>No assignments found.</Text>
+				</View>
+			}
 			return (
 				<View style={styles.container}>
 					<SectionList
@@ -146,6 +152,12 @@ class HomeworkViewScreen extends React.Component {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+	},
+	containerEmpty: {
+		flexDirection: "column",
+		alignItems: "center",
+		justifyContent: "center",
+		height: "100%"
 	},
 	sectionHeader: {
 		paddingTop: 2,
