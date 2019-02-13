@@ -46,7 +46,7 @@ class HomeworkViewScreen extends React.Component {
 			}).catch((error) => {
 				console.error(error)
 			});
-			fetch('https://api-v2.myhomework.space/prefixes/getDefaultList', {
+			fetch('https://api-v2.myhomework.space/prefixes/getList', {
 				method: 'GET',
 				headers: {
 					'Authorization': 'Bearer ' + token
