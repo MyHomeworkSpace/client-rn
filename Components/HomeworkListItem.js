@@ -12,7 +12,7 @@ class HomeworkListItem extends React.Component {
         return (
             <TouchableOpacity onPress={this.props.onPress} style={styles.Item}>
                 <Text style={[styles.ItemMain, (completed ? styles.Completed : null), (overdue ? styles.Overdue : null)]}>
-                    <Text style={this.props.prefixes[nameComponents[0]] ? { backgroundColor: "#" + this.props.prefixes[nameComponents[0]].background, color: "#" + this.props.prefixes[nameComponents[0]].color } : null}>
+                    <Text style={this.props.prefixes[nameComponents[0].toLowerCase()] ? { backgroundColor: "#" + this.props.prefixes[nameComponents[0].toLowerCase()].background, color: "#" + this.props.prefixes[nameComponents[0].toLowerCase()].color } : { backgroundColor: "#ffd3bd", color: "#000000" }}>
                         {nameComponents[0]}
                     </Text>{" " + nameComponents[1]}
                 </Text>

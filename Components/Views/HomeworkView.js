@@ -60,7 +60,7 @@ class HomeworkViewScreen extends React.Component {
 					const bg = list[i].background;
 					const color = list[i].color;
 					for (const j in list[i].words) {
-						reference[list[i].words[j]] = {
+						reference[list[i].words[j].toLowerCase()] = {
 							background: bg,
 							color: color
 						}
