@@ -14,16 +14,12 @@ const IoniconsHeaderButton = passMeFurther => (
 );
 
 class HomeworkViewScreen extends React.Component {
-	static navigationOptions = ({ navigation }) => {
-		return {
-			title: "MyHomeworkSpace",
-			headerRight: (
-				<HeaderButtons HeaderButtonComponent={IoniconsHeaderButton}>
-					<Item title="Add" onPress={() => navigation.navigate('EditHomework')} />
-				</HeaderButtons>
-			),
-		};
-	};
+	constructor(props) {
+		super(props);
+		this.state = {
+			loading: true
+		}
+	}
 
 	load() {
 		this.setState({
@@ -77,14 +73,19 @@ class HomeworkViewScreen extends React.Component {
 		})
 	}
 
-	constructor(props) {
-		super(props);
-		this.state = {
-			loading: true
-		}
-	}
+	static navigationOptions = ({ navigation }) => {
+		return {
+			title: "MyHomeworkSpace",
+			headerRight: (
+				<HeaderButtons HeaderButtonComponent={IoniconsHeaderButton}>
+					<Item title="Add" onPress={() => navigation.navigate('EditHomework', { refresh: navigation.getParam('refresh') })} />
+				</HeaderButtons>
+			),
+		};
+	};
 
 	componentDidMount() {
+		this.props.navigation.setParams({ refresh: this.load.bind(this) });
 		this.load();
 	}
 
@@ -133,7 +134,7 @@ class HomeworkViewScreen extends React.Component {
 						sections={sections}
 						renderItem={
 							({ item }) => <HomeworkListItem prefixes={this.state.prefixes} homeworkItem={item} onPress={function () {
-								this.props.navigation.navigate('EditHomework', { homework: item })
+								this.props.navigation.navigate('EditHomework', { homework: item, refresh: this.load.bind(this) })
 							}.bind(this)} />}
 						renderSectionHeader={({ section }) => (<Text style={styles.sectionHeader}>{section.title}</Text>)}
 						keyExtractor={(item, index) => index}

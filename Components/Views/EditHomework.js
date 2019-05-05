@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, KeyboardAvoidingView, AsyncStorage, Button, TextInput, Picker, StyleSheet, Text, Switch } from 'react-native';
+import { View, KeyboardAvoidingView, AsyncStorage, Button, TextInput, Picker, StyleSheet, Text, Switch, ScrollView } from 'react-native';
 import HeaderButtons, { HeaderButton, Item } from 'react-navigation-header-buttons';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -41,6 +41,9 @@ class EditHomework extends React.Component {
 		//if(check != true) {
 		//	this.state.error = check;
 		//} else {
+		if (this.state.classId || this.state.classId == -1) {
+			alert("You must select a class.")
+		}
 		AsyncStorage.getItem('token').then((token) => {
 			body = {
 				name: this.state.name,
@@ -49,9 +52,10 @@ class EditHomework extends React.Component {
 				complete: (this.state.complete ? 1 : 0),
 				classId: this.state.classId,
 			}
-			if(!this.state.new) {
+			if (!this.state.new) {
 				body.id = this.state.id
 			}
+			console.log(body)
 			fetch(`https://api-v2.myhomework.space/homework/${method}`, {
 				method: 'POST',
 				headers: {
@@ -66,6 +70,8 @@ class EditHomework extends React.Component {
 				if (text.status == "error") {
 					this.setState({ error: text.error })
 				} else {
+					console.log(this.props)
+					this.state.refresh()
 					this.props.navigation.goBack()
 				}
 			}).catch((error) => {
@@ -90,13 +96,16 @@ class EditHomework extends React.Component {
 	constructor(props) {
 		super(props);
 		const { params } = this.props.navigation.state;
-		if (params) {
-			this.state = params.homework;
-			this.state.complete = (this.state.complete == 1 ? true : false)
-			this.state.new = false;
-		} else {
-			this.state = { new: true };
+		this.state = {
+			new: true
 		}
+		if (params.homework) {
+			this.state = params.homework;
+			this.state.new = false;
+		}
+		this.state.refresh = params.refresh;
+		this.state.complete = (this.state.complete == 1 ? true : false)
+		this.state.new = true
 		this.state.loading = true;
 		this.load();
 	}
@@ -125,7 +134,7 @@ class EditHomework extends React.Component {
 
 	render() {
 		if (!this.state.loading) {
-			return (<KeyboardAvoidingView behavior="position" style={{ flex: 1, flexDirection: "column" }}>
+			return (<ScrollView style={{ flex: 1, flexDirection: "column" }}>
 				{this.state.error ? <Text style={styles.Error}>{this.state.error}</Text> : null}
 				<TextInput
 					placeholder="Assignment Name"
@@ -165,8 +174,9 @@ class EditHomework extends React.Component {
 				<Picker
 					selectedValue={this.state.classId}
 					onValueChange={(itemValue, itemIndex) => this.setState({ classId: itemValue })}
-					// style={{borderBottomWidth: 1, borderBottomColor: "#cccccc"}}
-					>
+				// style={{borderBottomWidth: 1, borderBottomColor: "#cccccc"}}
+				>
+					<Picker.Item label="Select a class..." value={-1} />
 					{this.state.classes.map((classItem, i) => {
 						return <Picker.Item label={classItem.name} value={classItem.id} key={"classitem_" + i} />
 					})}
@@ -175,17 +185,23 @@ class EditHomework extends React.Component {
 					placeholder="Description"
 					value={this.state.desc}
 					onChangeText={(text) => this.setState({ desc: text })}
-					style={[styles.input, styles.multiline, {height: "100%"}]}
+					style={[styles.input, styles.multiline, { paddingBottom: 20 }]}
 					multiline={true}
 				/>
-			</KeyboardAvoidingView>);
+				<Button
+					title="Delete assignment"
+					color="red"
+					onPress={async () => {
+						this.deleteAssignment()
+					}} />
+			</ScrollView>);
 		} else return <Loading />
 	}
 }
 
 const styles = StyleSheet.create({
 	input: {
-		height: 50,
+		// height: 50,
 		fontSize: 20,
 		paddingLeft: 10,
 		paddingRight: 10,
