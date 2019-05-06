@@ -1,13 +1,37 @@
 import React from 'react';
 import { AsyncStorage, Text, ScrollView, StyleSheet, Button, View, Alert } from 'react-native'
 import { createStackNavigator } from 'react-navigation';
+import HeaderButtons, { HeaderButton, Item } from 'react-navigation-header-buttons';
 
 import Loading from '../Loading.js'
 import api from '../../api'
 
 class SettingsView extends React.Component {
-    static navigationOptions = {
-        title: "Settings",
+    static navigationOptions = ({ navigation }) => {
+        return {
+            title: "Settings",
+            headerRight: (
+                <HeaderButtons HeaderButtonComponent={HeaderButton}>
+                    <Item title="Sign Out" onPress={async () => {
+                        Alert.alert(
+                            "Sign Out",
+                            "Are you sure you want to sign out?",
+                            [{
+                                text: "Cancel",
+                                style: "danger",
+                            },
+                            {
+                                text: "Sign Out",
+                                onPress: async () => {
+                                    await AsyncStorage.removeItem("token");
+                                    navigation.navigate('LoadApp');
+                                }
+                            }]
+                        )
+                    }} />
+                </HeaderButtons>
+            ),
+        }
     };
 
     constructor(props) {
@@ -36,23 +60,7 @@ class SettingsView extends React.Component {
             return (<ScrollView>
                 <Text style={styles.hello}>Hi, {this.state.me.user.name.split(' ')[0]}</Text>
                 <Text style={styles.subtitle}>Grade {this.state.me.grade} | {this.state.me.user.email} {this.state.me.level > 0 ? (<Text>| <Text style={styles.admin}>Admin</Text></Text>) : null}</Text>
-                <Button title="Sign Out" color="red" onPress={async () => {
-                    Alert.alert(
-                        "Sign Out",
-                        "Are you sure you want to sign out?",
-                        [{
-                            text: "Cancel",
-                            style: "danger",
-                        },
-                        {
-                            text: "Sign Out",
-                            onPress: async () => {
-                                await AsyncStorage.removeItem("token");
-                                this.props.navigation.navigate('LoadApp');
-                            }
-                        }]
-                    )
-                }} />
+                {/* <Button title="Sign Out" color="red" onPress={} /> */}
             </ScrollView>)
         } else return <Loading />
     }
