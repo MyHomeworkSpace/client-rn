@@ -74,6 +74,19 @@ class CalendarView extends React.Component {
     }
 
     renderItem(item) {
+        if (item.type == 1) {
+            //TODO: It's a homework event. Display it as one.
+            let nameComponents = item.name.split(' ');
+            nameComponents = [nameComponents.shift(), nameComponents.join(' ')];    
+            return <View>
+                <View style={styles.item}>
+                    <Text style={styles.itemName}>{item.name}</Text>
+                    <Text style={styles.times}>{moment(item.start * 1000).format("h:mm a") + " - " + moment(item.end * 1000).format("h:mm a")}</Text>
+                    {item.data.ownerName ? <Text style={styles.small}>{item.data.ownerName}</Text> : null}
+                    {item.data.buildingName ? <Text style={styles.small}>{item.data.buildingName + " " + item.data.roomNumber}</Text> : null}
+                </View>
+            </View>
+        }
         return (
             <View>
                 {
@@ -114,7 +127,7 @@ class GetScheduleView extends React.Component {
 
     render() {
         return <View style={styles.import}>
-            <Image source={require("../../assets/img/calendar.png")} style={{ width: 295, height: 200 }} />
+            <Image source={require("../../assets/img/calendar.png")} style={{ width: 295, height: 234 }} />
             <Text style={styles.importTitle}>Welcome to Calendar</Text>
             <Text style={styles.importBlurb}>The Calendar allows you to plan out when you will do your homework, tests, quizzes, and other events.</Text>
             <Text style={styles.importBlurb}>Currently Calendar can only be setup on the website, over at https://myhomework.space. Setup takes
