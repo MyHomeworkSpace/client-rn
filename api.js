@@ -26,7 +26,6 @@ module.exports = {
 				},
 				body: bodyEncoded
         })
-        let json = await resp.json()
-        return json
+        return await resp.json()
     }
 }
