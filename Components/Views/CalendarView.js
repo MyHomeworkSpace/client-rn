@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text, AsyncStorage, Button, Image } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 import moment from 'moment';
+import api from '../../api'
 
 import Loading from '../Loading.js'
 import { createStackNavigator, createSwitchNavigator } from 'react-navigation';
@@ -27,22 +28,14 @@ class CalendarView extends React.Component {
         this.setState({
             token: token,
         })
-        fetch(`https://api-v2.myhomework.space/calendar/getStatus`, {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
-        }).then((response) => {
-            return response.text();
-        }).then((text) => {
-            if (JSON.parse(text).statusNum != 1) {
-                this.props.navigation.navigate("GetScheduleView");
-            } else {
-                this.setState({
-                    loading: false,
-                })
-            }
-        })
+        const calendarStatus = await api.GET('calendar/getStatus')
+        if (calendarStatus.statusNum != 1) {
+            this.props.navigation.navigate("GetScheduleView");
+        } else {
+            this.setState({
+                loading: false,
+            })
+        }
     }
 
     render() {
@@ -50,37 +43,26 @@ class CalendarView extends React.Component {
         return (
             <Agenda
                 items={this.state.items}
-                loadItemsForMonth={(month) => {
+                loadItemsForMonth={async (month) => {
                     if (this.state.monthsLoaded.indexOf(moment(month).format("YYYY-MM") < 0)) {
                         const start = moment().startOf('month').startOf('week').format("YYYY-MM-DD");
                         const end = moment().endOf('month').endOf('week').format("YYYY-MM-DD");
-                        return fetch(`https://api-v2.myhomework.space/calendar/getView?start=${start}&end=${end}`, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': 'Bearer ' + this.state.token
-                            },
-                        }).then((response) => {
-                            return response.text();
-                        }).then((text) => {
-                            const days = JSON.parse(text).view.days;
-                            let items = this.state.items
-                            for (const i in days) {
-                                if (moment(days[i].day).month() == moment(month).month()) {
-                                    items[days[i].day] = days[i].events
-                                    if (days[i].shiftingIndex != -1) {
-                                        items[days[i].day].splice(0, 0, { type: "friday", name: `Friday ${days[i].shiftingIndex}` });
-                                    }
+                        const resp = await api.GET(`calendar/getView?start=${start}&end=${end}`)
+                        const days = resp.view.days;
+                        let items = this.state.items
+                        for (const i in days) {
+                            if (moment(days[i].day).month() == moment(month).month()) {
+                                items[days[i].day] = days[i].events
+                                if (days[i].shiftingIndex != -1) {
+                                    items[days[i].day].splice(0, 0, { type: "friday", name: `Friday ${days[i].shiftingIndex}` });
                                 }
                             }
-                            const monthsLoaded = this.state.monthsLoaded;
-                            monthsLoaded.push(moment(month).format("YYYY-MM"));
-                            this.setState({
-                                items: items,
-                                monthsLoaded: monthsLoaded
-                            })
-                        }).catch((error) => {
-                            console.error(error);
-                            alert("Could not connect to MyHomeworkSpace server.")
+                        }
+                        const monthsLoaded = this.state.monthsLoaded;
+                        monthsLoaded.push(moment(month).format("YYYY-MM"));
+                        this.setState({
+                            items: items,
+                            monthsLoaded: monthsLoaded
                         })
                     }
                 }}

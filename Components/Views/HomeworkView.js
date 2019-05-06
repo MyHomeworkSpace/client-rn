@@ -7,7 +7,7 @@ import HeaderButtons, { HeaderButton, Item } from 'react-navigation-header-butto
 import EditHomework from './EditHomework.js'
 import HomeworkListItem from "../HomeworkListItem.js"
 import Loading from '../Loading.js'
-
+import api from '../../api'
 
 const IoniconsHeaderButton = passMeFurther => (
 	<HeaderButton {...passMeFurther} IconComponent={Icon} iconSize={23} />
@@ -21,56 +21,32 @@ class HomeworkViewScreen extends React.Component {
 		}
 	}
 
-	load() {
+	async load() {
 		this.setState({
 			refreshing: true
 		})
-		AsyncStorage.getItem('token').then((token) => {
-			fetch('https://api-v2.myhomework.space/homework/getHWViewSorted?showToday=true', {
-				method: 'GET',
-				headers: {
-					'Authorization': 'Bearer ' + token
-				},
-			}).then((response) => {
-				return response.text();
-			}).then((text) => {
-				this.setState({
-					loading: false,
-					refreshing: false,
-					homework: JSON.parse(text)
-				});
-			}).catch((error) => {
-				console.error(error)
-			});
-			fetch('https://api-v2.myhomework.space/prefixes/getList', {
-				method: 'GET',
-				headers: {
-					'Authorization': 'Bearer ' + token
-				},
-			}).then((response) => {
-				return response.text();
-			}).then((text) => {
-				const list = JSON.parse(text).prefixes;
-				const reference = {};
-				for (const i in list) {
-					const bg = list[i].background;
-					const color = list[i].color;
-					for (const j in list[i].words) {
-						reference[list[i].words[j].toLowerCase()] = {
-							background: bg,
-							color: color
-						}
-					}
+		let hwView = await api.GET('homework/getHWViewSorted?showToday=true')
+		this.setState({
+			loading: false,
+			refreshing: false,
+			homework: hwView
+		});
+		let prefixesResp = await api.GET('prefixes/getList')
+		let list = prefixesResp.prefixes
+		let reference = {};
+		for (const i in list) {
+			const bg = list[i].background;
+			const color = list[i].color;
+			for (const j in list[i].words) {
+				reference[list[i].words[j].toLowerCase()] = {
+					background: bg,
+					color: color
 				}
-				this.setState({
-					prefixes: reference
-				});
-			}).catch((error) => {
-				console.error(error)
-			});
-		}).catch((error) => {
-			console.error(error);
-		})
+			}
+		}
+		this.setState({
+			prefixes: reference
+		});
 	}
 
 	static navigationOptions = ({ navigation }) => {

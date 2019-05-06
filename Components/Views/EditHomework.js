@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import Loading from '../Loading.js'
 import moment from 'moment';
+import api from '../../api'
 
 const IoniconsHeaderButton = passMeFurther => (
 	<HeaderButton {...passMeFurther} IconComponent={Icon} iconSize={23} />
@@ -35,51 +36,32 @@ class EditHomework extends React.Component {
 	}
 
 
-	save() {
+	async save() {
 		const method = this.state.new ? "add" : "edit";
 		// const check = this.checkParams();
 		//if(check != true) {
 		//	this.state.error = check;
 		//} else {
-		if (this.state.classId || this.state.classId == -1) {
+		if (!this.state.classId || this.state.classId == -1) {
 			alert("You must select a class.")
 		}
-		AsyncStorage.getItem('token').then((token) => {
-			body = {
-				name: this.state.name,
-				due: moment(this.state.due).format("YYYY-MM-DD"),
-				desc: this.state.desc,
-				complete: (this.state.complete ? 1 : 0),
-				classId: this.state.classId,
-			}
-			if (!this.state.new) {
-				body.id = this.state.id
-			}
-			console.log(body)
-			fetch(`https://api-v2.myhomework.space/homework/${method}`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-					'Authorization': 'Bearer ' + token
-				},
-				body: this.encodeFormBody(body)
-			}).then((response) => {
-				return response.text();
-			}).then((text) => {
-				text = JSON.parse(text);
-				if (text.status == "error") {
-					this.setState({ error: text.error })
-				} else {
-					console.log(this.props)
-					this.state.refresh()
-					this.props.navigation.goBack()
-				}
-			}).catch((error) => {
-				console.error(error)
-			})
-		}).catch((error) => {
-			console.error(error);
-		})
+		body = {
+			name: this.state.name,
+			due: moment(this.state.due).format("YYYY-MM-DD"),
+			desc: this.state.desc,
+			complete: (this.state.complete ? 1 : 0),
+			classId: this.state.classId,
+		}
+		if (!this.state.new) {
+			body.id = this.state.id
+		}
+		let text = await api.POST(`homework/${method}`, body)
+		if (text.status == "error") {
+			this.setState({ error: text.error })
+		} else {
+			this.state.refresh()
+			this.props.navigation.goBack()
+		}
 		//}
 	}
 
@@ -96,39 +78,25 @@ class EditHomework extends React.Component {
 	constructor(props) {
 		super(props);
 		const { params } = this.props.navigation.state;
-		this.state = {
+		let state = {
 			new: true
 		}
 		if (params.homework) {
-			this.state = params.homework;
-			this.state.new = false;
+			state = params.homework;
+			state.new = false
 		}
-		this.state.refresh = params.refresh;
-		this.state.complete = (this.state.complete == 1 ? true : false)
-		this.state.new = true
-		this.state.loading = true;
+		state.refresh = params.refresh;
+		state.complete = (state.complete == 1 ? true : false)
+		state.loading = true;
+		this.state = state;
 		this.load();
 	}
 
-	load() {
-		AsyncStorage.getItem('token').then((token) => {
-			fetch('https://api-v2.myhomework.space/classes/get', {
-				method: 'GET',
-				headers: {
-					'Authorization': 'Bearer ' + token
-				},
-			}).then((response) => {
-				return response.text();
-			}).then((text) => {
-				this.setState({
-					loading: false,
-					classes: JSON.parse(text).classes
-				});
-			}).catch((error) => {
-				console.error(error)
-			});
-		}).catch((error) => {
-			console.error(error);
+	async load() {
+		const text = await api.GET("classes/get")
+		this.setState({
+			loading: false,
+			classes: text.classes
 		})
 	}
 
