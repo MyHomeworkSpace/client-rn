@@ -65,6 +65,22 @@ class EditHomework extends React.Component {
 		//}
 	}
 
+	async deleteAssignment() {
+		body = {
+			id: this.state.id
+		}
+		if (!this.state.new) {
+			body.id = this.state.id
+		}
+		let text = await api.POST(`homework/delete`, body)
+		if (text.status == "error") {
+			this.setState({ error: text.error })
+		} else {
+			this.state.refresh()
+			this.props.navigation.goBack()
+		}
+	}
+
 	encodeFormBody(body) {
 		let formBody = [];
 		for (const property in body) {
@@ -108,7 +124,7 @@ class EditHomework extends React.Component {
 					placeholder="Assignment Name"
 					value={this.state.name}
 					onChangeText={(text) => this.setState({ name: text, changed: true })}
-					style={styles.input}
+					style={[styles.input, styles.assignmentTitle]}
 				/>
 				<View style={[[styles.inputWrapper, styles.inputWrapperFixedHeight], styles.topInput]}>
 					<View style={styles.labelWrapper}>
@@ -156,12 +172,12 @@ class EditHomework extends React.Component {
 					style={[styles.input, styles.multiline, { paddingBottom: 20 }]}
 					multiline={true}
 				/>
-				<Button
+				{!this.state.new && <Button
 					title="Delete assignment"
 					color="red"
-					onPress={async () => {
+					onPress={() => {
 						this.deleteAssignment()
-					}} />
+					}} />}
 			</ScrollView>);
 		} else return <Loading />
 	}
@@ -169,10 +185,12 @@ class EditHomework extends React.Component {
 
 const styles = StyleSheet.create({
 	input: {
-		// height: 50,
 		fontSize: 20,
 		paddingLeft: 10,
 		paddingRight: 10,
+	},
+	assignmentTitle: {
+		minHeight: 50,	
 	},
 	multiline: {
 		textAlignVertical: 'top'

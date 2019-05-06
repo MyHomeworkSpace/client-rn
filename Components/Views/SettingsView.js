@@ -29,8 +29,6 @@ class SettingsView extends React.Component {
     render() {
         if (!this.state.loading) {
             if (this.state.me.error == "logged_out") {
-                AsyncStorage.getAllKeys((keys) => console.log(keys))
-                AsyncStorage.getItem("token", (token) => console.log(token))
                 return (<View>
                     <Button title="Fix App" onPress={async () => { await AsyncStorage.clear(); this.props.navigation.navigate('LoadApp'); }} />
                 </View>)

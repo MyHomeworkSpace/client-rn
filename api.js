@@ -18,7 +18,6 @@ module.exports = {
             formBody.push(encodedKey + "=" + encodedValue);
         }
         let bodyEncoded = formBody.join("&");
-        console.log(bodyEncoded)
         let resp = await fetch(`https://api-v2.myhomework.space/${endpoint}`, {
 				method: 'POST',
 				headers: {
